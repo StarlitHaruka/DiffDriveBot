@@ -19,6 +19,7 @@ import monologue.Logged;
 import monologue.Monologue;
 import org.littletonrobotics.urcl.URCL;
 import robot.Ports.OI;
+import robot.drive.Drive;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -28,7 +29,6 @@ import robot.Ports.OI;
  */
 public class Robot extends CommandRobot implements Logged {
   // INPUT DEVICES
-  private final CommandXboxController operator = new CommandXboxController(OI.OPERATOR);
   private final CommandXboxController driver = new CommandXboxController(OI.DRIVER);
 
   private final PowerDistribution pdh = new PowerDistribution();
@@ -70,7 +70,10 @@ public class Robot extends CommandRobot implements Logged {
   }
 
   /** Configures trigger -> command bindings. */
-  private void configureBindings() {}
+  private void configureBindings() {
+    Drive drive = new Drive();
+    drive.setDefaultCommand(drive.drive(driver::getLeftY, driver::getRightY));
+  }
 
   /**
    * Command factory to make both controllers rumble.
@@ -83,13 +86,11 @@ public class Robot extends CommandRobot implements Logged {
     return Commands.runOnce(
             () -> {
               driver.getHID().setRumble(rumbleType, strength);
-              operator.getHID().setRumble(rumbleType, strength);
             })
         .andThen(Commands.waitSeconds(0.3))
         .finallyDo(
             () -> {
               driver.getHID().setRumble(rumbleType, 0);
-              operator.getHID().setRumble(rumbleType, 0);
             });
   }
 
